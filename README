@@ -1,0 +1,22 @@
+cdphttp: net/http client that sends requests through a running Chrome
+(DevTools Protocol), so they carry the browser's fingerprint, headers and
+cookies.
+
+    import "codeberg.org/yaklib/cdphttp"
+
+    c, err := cdphttp.NewClient(ctx) // opt: cdphttp.WithEndpoint("http://localhost:9224")
+    if err != nil {
+        return err
+    }
+    defer c.CloseIdleConnections()   // optional: closes its hidden tabs now
+    resp, err := c.Get("https://example.com")
+
+Endpoint: WithEndpoint > $CDPHTTP_ENDPOINT > http://localhost:9222
+(http://host:port or ws:// URL). Connect timeout: 3s.
+Browser: google-chrome-stable --remote-debugging-port=9222
+
+Notes:
+- Cookies are the browser's; don't set Client.Jar. Responses lack Set-Cookie.
+- Request headers override the browser's, except Sec-Fetch-*.
+- Requests run in hidden tabs (not in the tab strip), closed on exit.
+- cdphttp.Dial(ctx, opts...) returns the *Transport for your own http.Client.
